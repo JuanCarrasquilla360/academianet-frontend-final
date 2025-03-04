@@ -81,6 +81,23 @@ export const ThemeProvider: React.FC<ThemeProviderProps> = ({ children }) => {
           },
         },
         components: {
+          MuiAppBar: {
+            styleOverrides: {
+              root: {
+                backgroundColor: mode === "dark" ? "#151C35" : "#2C3E7E",
+                backgroundImage: "none",
+              },
+            },
+          },
+          MuiToolbar: {
+            styleOverrides: {
+              root: {
+                "@media (min-width: 600px)": {
+                  minHeight: "70px",
+                },
+              },
+            },
+          },
           MuiButton: {
             styleOverrides: {
               root: {
