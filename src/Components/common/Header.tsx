@@ -7,10 +7,13 @@ import {
   Box,
   useMediaQuery,
   alpha,
+  Stack,
 } from "@mui/material";
 import { Link as RouterLink } from "react-router-dom";
 import { useTheme } from "../../hooks/useTheme";
 import { ThemeSwitcher } from "./ThemeSwitcher";
+import SearchIcon from "@mui/icons-material/Search";
+import HomeIcon from "@mui/icons-material/Home";
 
 export const Header: React.FC = () => {
   const { theme } = useTheme();
@@ -47,16 +50,69 @@ export const Header: React.FC = () => {
           sx={{
             textDecoration: "none",
             color: headerTextColor,
-            flexGrow: 1,
             fontWeight: "bold",
             fontSize: { xs: "1.1rem", sm: "1.25rem" },
             letterSpacing: "0.5px",
+            mr: 4,
           }}
         >
           Academia.net
         </Typography>
 
+        {/* Navegación */}
+        <Stack
+          direction="row"
+          spacing={1}
+          sx={{
+            flexGrow: 1,
+            display: { xs: "none", md: "flex" },
+          }}
+        >
+          <Button
+            component={RouterLink}
+            to="/"
+            startIcon={<HomeIcon />}
+            sx={{
+              color: "white",
+              "&:hover": {
+                backgroundColor: alpha(theme.palette.common.white, 0.1),
+              },
+            }}
+          >
+            Inicio
+          </Button>
+          <Button
+            component={RouterLink}
+            to="/busqueda"
+            startIcon={<SearchIcon />}
+            sx={{
+              color: "white",
+              "&:hover": {
+                backgroundColor: alpha(theme.palette.common.white, 0.1),
+              },
+            }}
+          >
+            Buscar Carreras
+          </Button>
+        </Stack>
+
         <Box sx={{ display: "flex", alignItems: "center" }}>
+          {/* Mostrar ícono de búsqueda en móvil */}
+          {isMobile && (
+            <Button
+              component={RouterLink}
+              to="/busqueda"
+              sx={{
+                minWidth: "auto",
+                p: 1,
+                color: "white",
+                mr: 1,
+              }}
+            >
+              <SearchIcon />
+            </Button>
+          )}
+
           <ThemeSwitcher />
 
           <Button

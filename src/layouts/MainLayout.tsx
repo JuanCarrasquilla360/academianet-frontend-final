@@ -13,6 +13,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
 
   // Color del fondo del contenido principal según el modo
   const mainBgColor = theme.palette.mode === "dark" ? "#121212" : "#F8F9FA";
+  const secondBgColor = theme.palette.mode === "dark" ? "#292525" : "#DDDDDD";
 
   return (
     <Box
@@ -20,7 +21,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         display: "flex",
         flexDirection: "column",
         minHeight: "100vh",
-        bgcolor: mainBgColor,
+        bgcolor: "red",
       }}
     >
       <CssBaseline />
@@ -29,7 +30,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
         component="main"
         sx={{
           flexGrow: 1,
-          py: { xs: 3, md: 4 },
+          py: 3,
           px: { xs: 1, sm: 2, md: 3 },
           bgcolor: mainBgColor,
           transition: "background-color 0.3s ease",
@@ -40,6 +41,7 @@ export const MainLayout: React.FC<MainLayoutProps> = ({ children }) => {
           sx={{
             borderRadius: 2,
             overflow: "hidden",
+            bgcolor: secondBgColor,
           }}
         >
           {children}
