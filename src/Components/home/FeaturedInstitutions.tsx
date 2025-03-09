@@ -18,17 +18,17 @@ const featuredInstitutions: Institution[] = [
     logoUrl: "/src/assets/logos/itm.png",
   },
   {
-    id: "uandes",
+    id: "los-andes",
     name: "Universidad de los Andes",
     logoUrl: "/src/assets/logos/uandes.png",
   },
   {
-    id: "unal",
+    id: "nacional-de-colombia",
     name: "Universidad Nacional de Colombia",
     logoUrl: "/src/assets/logos/unal.png",
   },
   {
-    id: "iudigital",
+    id: "digital-antioquia",
     name: "IU Digital de Antioquia",
     logoUrl: "/src/assets/logos/iudigital.png",
   },
@@ -38,7 +38,7 @@ const featuredInstitutions: Institution[] = [
     logoUrl: "/src/assets/logos/javeriana.png",
   },
   {
-    id: "urosario",
+    id: "rosario",
     name: "Universidad del Rosario",
     logoUrl: "/src/assets/logos/urosario.png",
   },
@@ -48,17 +48,17 @@ const featuredInstitutions: Institution[] = [
     logoUrl: "/src/assets/logos/eafit.png",
   },
   {
-    id: "uvalle",
+    id: "del-valle",
     name: "Universidad del Valle",
     logoUrl: "/src/assets/logos/uvalle.png",
   },
   {
-    id: "udea",
+    id: "antioquia",
     name: "Universidad de Antioquia",
     logoUrl: "/src/assets/logos/udea.png",
   },
   {
-    id: "uninorte",
+    id: "del-norte",
     name: "Universidad del Norte",
     logoUrl: "/src/assets/logos/uninorte.png",
   },
@@ -68,6 +68,8 @@ export const FeaturedInstitutions: React.FC = () => {
   const navigate = useNavigate();
 
   const handleInstitutionClick = (institutionId: string) => {
+    // Navegar a la página de la institución sin especificar una carrera
+    // para mostrar todos los programas disponibles
     navigate(`/institucion/${institutionId}`);
   };
 

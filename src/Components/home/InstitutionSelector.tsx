@@ -42,16 +42,28 @@ export const InstitutionSelector: React.FC = () => {
   const navigate = useNavigate();
 
   const handleSubmit = (values: { carrera: string; institucion: string }) => {
-    // En una aplicación real, aquí podrías hacer una validación adicional o
-    // redirigir al usuario a la página de la institución seleccionada
-    navigate(`/institucion/${encodeURIComponent(values.institucion)}`);
+    // Crear IDs simplificados basados en los nombres
+    const institucionId = values.institucion
+      .toLowerCase()
+      .replace(
+        /universidad\s+de\s+|universidad\s+|pontificia\s+universidad\s+/g,
+        ""
+      )
+      .replace(/\s+/g, "-");
+
+    // Redirigir a la página de la institución con la carrera como parámetro de consulta
+    navigate(
+      `/institucion/${institucionId}?carrera=${encodeURIComponent(
+        values.carrera
+      )}`
+    );
   };
 
   return (
     <Box
       sx={{
         py: { xs: 4, md: 6 },
-        px: { xs: 2, md: 1 },
+        px: { xs: 2, md: 0 },
         textAlign: "left",
         backgroundImage: "url(/src/assets/background.jpg)",
         backgroundSize: "cover",
@@ -60,7 +72,6 @@ export const InstitutionSelector: React.FC = () => {
         color: "white",
         position: "relative",
         overflow: "hidden",
-        width: "100%",
         "&::before": {
           content: '""',
           position: "absolute",
@@ -223,7 +234,7 @@ export const InstitutionSelector: React.FC = () => {
                     </FormControl>
                   </Grid>
 
-                  <Grid item xs={12} md={3}>
+                  <Grid item xs={12} md={2}>
                     <Button
                       type="submit"
                       variant="contained"
