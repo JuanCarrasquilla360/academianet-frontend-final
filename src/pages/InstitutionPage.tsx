@@ -559,6 +559,15 @@ export const InstitutionPage: React.FC = () => {
                   fullWidth
                   sx={{ mt: 3 }}
                   disabled={!selectedProgram}
+                  onClick={() => {
+                    if (selectedProgram) {
+                      navigate(
+                        `/ingreso-aspirante?institution=${encodeURIComponent(
+                          institution.name
+                        )}&program=${encodeURIComponent(selectedProgram)}`
+                      );
+                    }
+                  }}
                 >
                   {selectedProgram
                     ? "Iniciar solicitud"
