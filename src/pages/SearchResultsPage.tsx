@@ -19,6 +19,8 @@ import { MainLayout } from "../layouts/MainLayout";
 import { useTheme as useCustomTheme } from "../hooks/useTheme";
 import { SearchFilters } from "../Components/search/SearchFilters";
 import { ProgramCard, Program } from "../Components/search/ProgramCard";
+import { ChatButton } from "../Components/search/ChatButton";
+import { ChatModal } from "../Components/search/ChatModal";
 
 // Datos de ejemplo para los programas
 const samplePrograms: Program[] = [
@@ -76,6 +78,7 @@ export const SearchResultsPage: React.FC = () => {
   const muiTheme = useTheme();
   const { theme } = useCustomTheme();
   const isDarkMode = theme.palette.mode === "dark";
+  const [isChatOpen, setIsChatOpen] = useState(false);
 
   // Estado para mostrar/ocultar filtros en móvil
   const [showFilters, setShowFilters] = useState(false);
@@ -85,6 +88,14 @@ export const SearchResultsPage: React.FC = () => {
   const [filteredPrograms, setFilteredPrograms] =
     useState<Program[]>(samplePrograms);
   const [searchTerm, setSearchTerm] = useState("");
+
+  const handleChatSearchRequest = (query: string) => {
+    console.log(query)
+    setSearchTerm(query);
+    // Aquí podrías implementar lógica adicional para filtrar los resultados
+    // basados en la consulta recibida del chatbot
+  };
+
 
   // Filtros
   const [filters, setFilters] = useState({
@@ -289,7 +300,7 @@ export const SearchResultsPage: React.FC = () => {
               ),
             }}
           />
-
+          <ChatButton onClick={() => setIsChatOpen(true)} />
           {/* Tags para mostrar los filtros activos */}
           {hasActiveFilters && (
             <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap", gap: 1 }}>
@@ -418,7 +429,7 @@ export const SearchResultsPage: React.FC = () => {
           </Grid>
 
           {/* Columna de resultados */}
-          <Grid item xs={12} md={showFilters ? 9 : 12}>
+          <Grid item xs={12} md={9}>
             {/* Botón para mostrar/ocultar filtros en móvil */}
             <Box
               sx={{
@@ -516,6 +527,12 @@ export const SearchResultsPage: React.FC = () => {
             </Box>
           </Grid>
         </Grid>
+        <ChatModal
+          open={isChatOpen}
+          onClose={() => setIsChatOpen(false)}
+          onSearchRequest={handleChatSearchRequest}
+        />
+
       </Box>
     </MainLayout>
   );
