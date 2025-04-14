@@ -1,5 +1,5 @@
 import React from "react";
-import { Card, CardMedia, Box, useTheme as useMuiTheme } from "@mui/material";
+import { Card, CardMedia, Box, useTheme as useMuiTheme, Typography } from "@mui/material";
 import { useTheme } from "../../hooks/useTheme";
 
 interface InstitutionCardProps {
@@ -20,6 +20,7 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
     <Card
       sx={{
         display: "flex",
+        flexDirection: "column",
         justifyContent: "center",
         alignItems: "center",
         height: 180,
@@ -33,17 +34,31 @@ export const InstitutionCard: React.FC<InstitutionCardProps> = ({
       }}
       onClick={onClick}
     >
-      <Box sx={{ p: 2, maxWidth: "100%", maxHeight: "100%" }}>
+      <Box sx={{ p: 2, maxWidth: "100%", maxHeight: "70%", display: "flex", justifyContent: "center", alignItems: "center" }}>
         <CardMedia
           component="img"
           sx={{
-            maxHeight: 120,
+            maxHeight: 100,
             objectFit: "contain",
             width: "100%",
           }}
           image={logoUrl}
           alt={`Logo de ${name}`}
         />
+      </Box>
+      <Box sx={{ p: 1, textAlign: "center" }}>
+        <Typography 
+          variant="subtitle2" 
+          noWrap 
+          title={name}
+          sx={{ 
+            maxWidth: "100%",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+          }}
+        >
+          {name}
+        </Typography>
       </Box>
     </Card>
   );

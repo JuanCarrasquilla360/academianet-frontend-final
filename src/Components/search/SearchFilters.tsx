@@ -15,7 +15,7 @@ import InfoIcon from "@mui/icons-material/Info";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
 import { useTheme } from "../../hooks/useTheme";
 
-interface FilterOptions {
+export interface FilterOptions {
   modality: {
     virtual: boolean;
     presencial: boolean;
@@ -26,19 +26,26 @@ interface FilterOptions {
     largo: boolean;
   };
   level: {
-    basico: boolean;
-    intermedio: boolean;
-    avanzado: boolean;
-    profesional: boolean;
+    pregrado: boolean;
     especializacion: boolean;
     maestria: boolean;
+    doctorado: boolean;
+    tecnico: boolean;
+    tecnologico: boolean;
+  };
+  location: {
+    medellin: boolean;
+    bogota: boolean;
+    cali: boolean;
+    barranquilla: boolean;
+    cartagena: boolean;
   };
 }
 
 interface SearchFiltersProps {
   filters: FilterOptions;
   onFilterChange: (category: string, name: string, checked: boolean) => void;
-  onClearFilters: () => void;
+  onClearFilters?: () => void;
 }
 
 export const SearchFilters: React.FC<SearchFiltersProps> = ({
@@ -56,28 +63,9 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
   );
 
   return (
-    <Paper
-      elevation={2}
-      sx={{
-        p: 3,
-        borderRadius: 2,
-        height: "100%",
-        backgroundColor: isDarkMode ? "#1E1E1E" : "white",
-      }}
-    >
-      <Box
-        sx={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-          mb: 2,
-        }}
-      >
-        <Typography variant="h6" component="h2" fontWeight="bold">
-          Filtros
-        </Typography>
-
-        {hasActiveFilters && (
+    <Box sx={{ height: "100%" }}>
+      {onClearFilters && hasActiveFilters && (
+        <Box sx={{ display: "flex", justifyContent: "flex-end", mb: 2 }}>
           <Button
             startIcon={<FilterAltOffIcon />}
             size="small"
@@ -85,16 +73,14 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
             color="primary"
             variant="text"
           >
-            Limpiar
+            Limpiar filtros
           </Button>
-        )}
-      </Box>
-
-      <Divider sx={{ mb: 2 }} />
+        </Box>
+      )}
 
       {/* Filtro de Modalidad */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle1" fontWeight="medium">
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
           Modalidad
         </Typography>
         <FormGroup>
@@ -123,9 +109,11 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
         </FormGroup>
       </Box>
 
+      <Divider sx={{ my: 2 }} />
+
       {/* Filtro de Duración */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle1" fontWeight="medium">
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
           Duración
         </Typography>
         <FormGroup>
@@ -192,55 +180,46 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
         </FormGroup>
       </Box>
 
+      <Divider sx={{ my: 2 }} />
+
       {/* Filtro de Nivel */}
-      <Box sx={{ mt: 3 }}>
-        <Typography variant="subtitle1" fontWeight="medium">
-          Nivel
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
+          Nivel Académico
         </Typography>
         <FormGroup>
           <FormControlLabel
             control={
               <Checkbox
-                checked={filters.level.basico}
+                checked={filters.level.pregrado}
                 onChange={(e) =>
-                  onFilterChange("level", "basico", e.target.checked)
+                  onFilterChange("level", "pregrado", e.target.checked)
                 }
               />
             }
-            label="Básico"
+            label="Pregrado"
           />
           <FormControlLabel
             control={
               <Checkbox
-                checked={filters.level.intermedio}
+                checked={filters.level.tecnico}
                 onChange={(e) =>
-                  onFilterChange("level", "intermedio", e.target.checked)
+                  onFilterChange("level", "tecnico", e.target.checked)
                 }
               />
             }
-            label="Intermedio"
+            label="Técnico"
           />
           <FormControlLabel
             control={
               <Checkbox
-                checked={filters.level.avanzado}
+                checked={filters.level.tecnologico}
                 onChange={(e) =>
-                  onFilterChange("level", "avanzado", e.target.checked)
+                  onFilterChange("level", "tecnologico", e.target.checked)
                 }
               />
             }
-            label="Avanzado"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.level.profesional}
-                onChange={(e) =>
-                  onFilterChange("level", "profesional", e.target.checked)
-                }
-              />
-            }
-            label="Profesional"
+            label="Tecnológico"
           />
           <FormControlLabel
             control={
@@ -264,8 +243,85 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
             }
             label="Maestría"
           />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.level.doctorado}
+                onChange={(e) =>
+                  onFilterChange("level", "doctorado", e.target.checked)
+                }
+              />
+            }
+            label="Doctorado"
+          />
         </FormGroup>
       </Box>
-    </Paper>
+
+      <Divider sx={{ my: 2 }} />
+
+      {/* Filtro de Ubicación */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
+          Ubicación
+        </Typography>
+        <FormGroup>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.location.medellin}
+                onChange={(e) =>
+                  onFilterChange("location", "medellin", e.target.checked)
+                }
+              />
+            }
+            label="Medellín"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.location.bogota}
+                onChange={(e) =>
+                  onFilterChange("location", "bogota", e.target.checked)
+                }
+              />
+            }
+            label="Bogotá"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.location.cali}
+                onChange={(e) =>
+                  onFilterChange("location", "cali", e.target.checked)
+                }
+              />
+            }
+            label="Cali"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.location.barranquilla}
+                onChange={(e) =>
+                  onFilterChange("location", "barranquilla", e.target.checked)
+                }
+              />
+            }
+            label="Barranquilla"
+          />
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={filters.location.cartagena}
+                onChange={(e) =>
+                  onFilterChange("location", "cartagena", e.target.checked)
+                }
+              />
+            }
+            label="Cartagena"
+          />
+        </FormGroup>
+      </Box>
+    </Box>
   );
 };

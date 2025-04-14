@@ -11,6 +11,8 @@ import {
   useTheme,
   Stack,
   Chip,
+  CircularProgress,
+  Alert,
 } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
 import TuneIcon from "@mui/icons-material/Tune";
@@ -21,83 +23,27 @@ import { SearchFilters } from "../Components/search/SearchFilters";
 import { ProgramCard, Program } from "../Components/search/ProgramCard";
 import { ChatButton } from "../Components/search/ChatButton";
 import { ChatModal } from "../Components/search/ChatModal";
-
-// Datos de ejemplo para los programas
-const samplePrograms: Program[] = [
-  {
-    id: "1",
-    title: "Desarrollo Web Full Stack",
-    university: "Pontificia Universidad Javeriana de Bogotá",
-    location: "Bogotá, Cundinamarca",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit magna interdum eu. Curabitur pellentesque nibh nibh.",
-    logoUrl: "/src/assets/logos/javeriana.png",
-    modality: ["Presencial"],
-    duration: "Medio Plazo",
-    level: "Intermedio",
-  },
-  {
-    id: "2",
-    title: "Ciencia de Datos",
-    university: "Universidad de Antioquia",
-    location: "Medellín, Antioquia",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit magna interdum eu. Curabitur pellentesque nibh nibh. Maecenas vitae mattis tellus. Nullam quis imperdiet augue. Vestibulum auctor ornare leo, non suscipit magna interdum eu. Curabitur pellentesque nibh nibh.",
-    logoUrl: "/src/assets/logos/udea.png",
-    modality: ["Virtual"],
-    duration: "Corto Plazo",
-    level: "Avanzado",
-  },
-  {
-    id: "3",
-    title: "Ingeniería de Software",
-    university: "Universidad Nacional de Colombia",
-    location: "Bogotá, Cundinamarca",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus. Nullam quis imperdiet augue.",
-    logoUrl: "/src/assets/logos/unal.png",
-    modality: ["Presencial", "Virtual"],
-    duration: "Largo Plazo",
-    level: "Profesional",
-  },
-  {
-    id: "4",
-    title: "Diseño UX/UI",
-    university: "Universidad EAFIT",
-    location: "Medellín, Antioquia",
-    description:
-      "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Ut et massa mi. Aliquam in hendrerit urna. Pellentesque sit amet sapien fringilla, mattis ligula consectetur, ultrices mauris. Maecenas vitae mattis tellus.",
-    logoUrl: "/src/assets/logos/eafit.png",
-    modality: ["Virtual"],
-    duration: "Medio Plazo",
-    level: "Intermedio",
-  },
-];
+import { useLocation } from "react-router-dom";
+import { searchService } from "../services/searchService";
 
 export const SearchResultsPage: React.FC = () => {
   const muiTheme = useTheme();
   const { theme } = useCustomTheme();
   const isDarkMode = theme.palette.mode === "dark";
   const [isChatOpen, setIsChatOpen] = useState(false);
+  const location = useLocation();
 
-  // Estado para mostrar/ocultar filtros en móvil
+  // Show/hide filters on mobile
   const [showFilters, setShowFilters] = useState(false);
 
-  // Estados para los filtros y búsqueda
-  const [programs] = useState<Program[]>(samplePrograms);
-  const [filteredPrograms, setFilteredPrograms] =
-    useState<Program[]>(samplePrograms);
+  // Search states
   const [searchTerm, setSearchTerm] = useState("");
+  const [programs, setPrograms] = useState<Program[]>([]);
+  const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const handleChatSearchRequest = (query: string) => {
-    console.log(query)
-    setSearchTerm(query);
-    // Aquí podrías implementar lógica adicional para filtrar los resultados
-    // basados en la consulta recibida del chatbot
-  };
-
-
-  // Filtros
+  // Search filters state
   const [filters, setFilters] = useState({
     modality: {
       virtual: false,
@@ -109,92 +55,102 @@ export const SearchResultsPage: React.FC = () => {
       largo: false,
     },
     level: {
-      basico: false,
-      intermedio: false,
-      avanzado: false,
-      profesional: false,
+      pregrado: false,
       especializacion: false,
       maestria: false,
+      doctorado: false,
+      tecnico: false,
+      tecnologico: false,
+    },
+    location: {
+      medellin: false,
+      bogota: false,
+      cali: false,
+      barranquilla: false,
+      cartagena: false,
     },
   });
 
-  // Aplicar filtros cuando cambian
+  // Get any search query from URL params
   useEffect(() => {
-    let result = [...programs];
-
-    // Filtrar por término de búsqueda
-    if (searchTerm) {
-      result = result.filter(
-        (program) =>
-          program.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          program.university.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          program.description.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    const params = new URLSearchParams(location.search);
+    const query = params.get("q");
+    if (query) {
+      setSearchTerm(query);
     }
+  }, [location.search]);
 
-    // Filtrar por modalidad
-    const hasModalityFilter =
-      filters.modality.virtual || filters.modality.presencial;
-    if (hasModalityFilter) {
-      result = result.filter((program) => {
-        if (filters.modality.virtual && program.modality.includes("Virtual"))
-          return true;
-        if (
-          filters.modality.presencial &&
-          program.modality.includes("Presencial")
-        )
-          return true;
-        return false;
-      });
-    }
+  // Load initial programs
+  useEffect(() => {
+    const fetchPrograms = async () => {
+      try {
+        setLoading(true);
+        setError(null);
 
-    // Filtrar por duración
-    const hasDurationFilter =
-      filters.duration.corto ||
-      filters.duration.medio ||
-      filters.duration.largo;
-    if (hasDurationFilter) {
-      result = result.filter((program) => {
-        if (filters.duration.corto && program.duration === "Corto Plazo")
-          return true;
-        if (filters.duration.medio && program.duration === "Medio Plazo")
-          return true;
-        if (filters.duration.largo && program.duration === "Largo Plazo")
-          return true;
-        return false;
-      });
-    }
+        // Get programs from API
+        const apiFilters = {
+          searchTerm: searchTerm,
+          modalidad: getSelectedModalities(),
+          nivel: getSelectedLevels(),
+          municipio: getSelectedLocations(),
+        };
 
-    // Filtrar por nivel
-    const hasLevelFilter =
-      filters.level.basico ||
-      filters.level.intermedio ||
-      filters.level.avanzado ||
-      filters.level.profesional ||
-      filters.level.especializacion ||
-      filters.level.maestria;
-    if (hasLevelFilter) {
-      result = result.filter((program) => {
-        if (filters.level.basico && program.level === "Básico") return true;
-        if (filters.level.intermedio && program.level === "Intermedio")
-          return true;
-        if (filters.level.avanzado && program.level === "Avanzado") return true;
-        if (filters.level.profesional && program.level === "Profesional")
-          return true;
-        if (
-          filters.level.especializacion &&
-          program.level === "Especialización"
-        )
-          return true;
-        if (filters.level.maestria && program.level === "Maestría") return true;
-        return false;
-      });
-    }
+        const searchResults = await searchService.search(apiFilters);
+        
+        // Map programs to the format expected by ProgramCard
+        let mappedPrograms = searchService.mapProgramsToSearchModel(searchResults.programs);
+        
+        // Enrich programs with institution data
+        mappedPrograms = await searchService.enrichProgramsWithInstitutions(mappedPrograms);
+        
+        setPrograms(mappedPrograms);
+        setFilteredPrograms(mappedPrograms);
+      } catch (err) {
+        console.error("Error fetching programs:", err);
+        setError("No se pudieron cargar los programas. Por favor, intenta más tarde.");
+      } finally {
+        setLoading(false);
+      }
+    };
 
-    setFilteredPrograms(result);
-  }, [searchTerm, filters, programs]);
+    fetchPrograms();
+  }, [searchTerm, filters]);
 
-  // Manejar cambios en los filtros
+  // Helper functions to extract selected filters
+  const getSelectedModalities = (): string[] => {
+    const result: string[] = [];
+    if (filters.modality.virtual) result.push("Virtual");
+    if (filters.modality.presencial) result.push("Presencial");
+    return result;
+  };
+
+  const getSelectedLevels = (): string[] => {
+    const result: string[] = [];
+    if (filters.level.pregrado) result.push("pregrado");
+    if (filters.level.especializacion) result.push("especialización");
+    if (filters.level.maestria) result.push("maestría");
+    if (filters.level.doctorado) result.push("doctorado");
+    if (filters.level.tecnico) result.push("técnico");
+    if (filters.level.tecnologico) result.push("tecnológico");
+    return result;
+  };
+
+  const getSelectedLocations = (): string[] => {
+    const result: string[] = [];
+    if (filters.location.medellin) result.push("Medellín");
+    if (filters.location.bogota) result.push("Bogotá");
+    if (filters.location.cali) result.push("Cali");
+    if (filters.location.barranquilla) result.push("Barranquilla");
+    if (filters.location.cartagena) result.push("Cartagena");
+    return result;
+  };
+
+  // Chat search handler
+  const handleChatSearchRequest = (query: string) => {
+    setSearchTerm(query);
+  };
+
+  // Filter change handler
   const handleFilterChange = (
     category: string,
     name: string,
@@ -209,7 +165,7 @@ export const SearchResultsPage: React.FC = () => {
     }));
   };
 
-  // Limpiar todos los filtros
+  // Clear all filters
   const handleClearFilters = () => {
     setFilters({
       modality: {
@@ -222,17 +178,24 @@ export const SearchResultsPage: React.FC = () => {
         largo: false,
       },
       level: {
-        basico: false,
-        intermedio: false,
-        avanzado: false,
-        profesional: false,
+        pregrado: false,
         especializacion: false,
         maestria: false,
+        doctorado: false,
+        tecnico: false,
+        tecnologico: false,
+      },
+      location: {
+        medellin: false,
+        bogota: false,
+        cali: false,
+        barranquilla: false,
+        cartagena: false,
       },
     });
   };
 
-  // Verificar si hay algún filtro activo
+  // Check if any filter is active
   const hasActiveFilters = Object.entries(filters).some(
     ([_, categoryFilters]) =>
       Object.values(categoryFilters).some((value) => value)
@@ -241,299 +204,328 @@ export const SearchResultsPage: React.FC = () => {
   return (
     <MainLayout>
       <Box sx={{ py: 3 }}>
-        {/* Hero section con campo de búsqueda */}
+        {/* Hero section with search field */}
         <Box
           sx={{
             py: 5,
             px: 3,
             mb: 4,
             borderRadius: 2,
-            background: "linear-gradient(135deg, #2C3E7E 0%, #4460F1 100%)",
-            color: "white",
-            position: "relative",
+            backgroundImage: isDarkMode
+              ? "linear-gradient(to right, #1A237E, #311B92)"
+              : "linear-gradient(to right, #E3F2FD, #EDE7F6)",
           }}
         >
+          <Typography variant="h3" component="h1" align="center" gutterBottom>
+            Encuentra tu programa ideal
+          </Typography>
           <Typography
-            variant="h4"
-            component="h1"
-            gutterBottom
-            fontWeight="bold"
+            variant="h6"
+            align="center"
+            color="text.secondary"
+            paragraph
+            sx={{ maxWidth: 700, mx: "auto", mb: 4 }}
           >
-            Encuentra tu carrera ideal
-          </Typography>
-          <Typography variant="body1" sx={{ maxWidth: "800px", mb: 3 }}>
-            Elige la institución a la que deseas ingresar y accede a la
-            plataforma para iniciar tu solicitud.
+            Explora nuestra base de datos de programas académicos para encontrar
+            el que mejor se adapte a tus intereses y objetivos profesionales.
           </Typography>
 
-          <TextField
-            fullWidth
-            placeholder="Buscar programas, universidades..."
-            variant="outlined"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            sx={{
-              maxWidth: "600px",
-              backgroundColor: isDarkMode
-                ? "rgba(255, 255, 255, 0.1)"
-                : "rgba(255, 255, 255, 0.9)",
-              borderRadius: 1,
-              "& .MuiOutlinedInput-root": {
-                "& fieldset": {
-                  borderColor: "transparent",
-                },
-                "&:hover fieldset": {
-                  borderColor: "transparent",
-                },
-                "&.Mui-focused fieldset": {
-                  borderColor: "white",
-                },
-              },
+          <Box
+            component="form"
+            sx={{ maxWidth: 600, mx: "auto" }}
+            onSubmit={(e) => {
+              e.preventDefault();
+              // Trigger search
             }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <SearchIcon
-                    sx={{ color: isDarkMode ? "white" : "#2C3E7E" }}
-                  />
-                </InputAdornment>
-              ),
-            }}
-          />
-          <ChatButton onClick={() => setIsChatOpen(true)} />
-          {/* Tags para mostrar los filtros activos */}
-          {hasActiveFilters && (
-            <Box sx={{ mt: 3, display: "flex", flexWrap: "wrap", gap: 1 }}>
-              <Typography variant="body2" sx={{ mr: 1, alignSelf: "center" }}>
-                Filtros activos:
-              </Typography>
-
-              {/* Mostrar chips para filtros de modalidad */}
-              {filters.modality.virtual && (
-                <Chip
-                  label="Virtual"
-                  size="small"
-                  onDelete={() =>
-                    handleFilterChange("modality", "virtual", false)
-                  }
-                  sx={{
-                    bgcolor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    "& .MuiChip-deleteIcon": {
-                      color: "white",
-                    },
-                  }}
-                />
-              )}
-              {filters.modality.presencial && (
-                <Chip
-                  label="Presencial"
-                  size="small"
-                  onDelete={() =>
-                    handleFilterChange("modality", "presencial", false)
-                  }
-                  sx={{
-                    bgcolor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    "& .MuiChip-deleteIcon": {
-                      color: "white",
-                    },
-                  }}
-                />
-              )}
-
-              {/* Mostrar chips para filtros de duración */}
-              {filters.duration.corto && (
-                <Chip
-                  label="Corto plazo"
-                  size="small"
-                  onDelete={() =>
-                    handleFilterChange("duration", "corto", false)
-                  }
-                  sx={{
-                    bgcolor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    "& .MuiChip-deleteIcon": {
-                      color: "white",
-                    },
-                  }}
-                />
-              )}
-              {filters.duration.medio && (
-                <Chip
-                  label="Medio plazo"
-                  size="small"
-                  onDelete={() =>
-                    handleFilterChange("duration", "medio", false)
-                  }
-                  sx={{
-                    bgcolor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    "& .MuiChip-deleteIcon": {
-                      color: "white",
-                    },
-                  }}
-                />
-              )}
-              {filters.duration.largo && (
-                <Chip
-                  label="Largo plazo"
-                  size="small"
-                  onDelete={() =>
-                    handleFilterChange("duration", "largo", false)
-                  }
-                  sx={{
-                    bgcolor: "rgba(255, 255, 255, 0.2)",
-                    color: "white",
-                    "& .MuiChip-deleteIcon": {
-                      color: "white",
-                    },
-                  }}
-                />
-              )}
-
-              {/* Botón para limpiar todos los filtros */}
-              <Chip
-                label="Limpiar filtros"
-                size="small"
-                onClick={handleClearFilters}
-                sx={{
-                  bgcolor: "rgba(255, 255, 255, 0.3)",
-                  color: "white",
-                  fontWeight: "bold",
-                  "&:hover": {
-                    bgcolor: "rgba(255, 255, 255, 0.4)",
-                  },
-                }}
-              />
-            </Box>
-          )}
+          >
+            <TextField
+              fullWidth
+              placeholder="¿Qué quieres estudiar?"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <SearchIcon />
+                  </InputAdornment>
+                ),
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <Button
+                      variant="contained"
+                      disableElevation
+                      sx={{
+                        borderRadius: "0 4px 4px 0",
+                        px: 3,
+                        py: 1.5,
+                        position: "absolute",
+                        right: 0,
+                        top: 0,
+                        height: "100%",
+                      }}
+                      type="submit"
+                    >
+                      Buscar
+                    </Button>
+                  </InputAdornment>
+                ),
+                sx: {
+                  backgroundColor: theme.palette.background.paper,
+                  borderRadius: 1,
+                  "& fieldset": { border: "none" },
+                },
+              }}
+              sx={{ boxShadow: muiTheme.shadows[4] }}
+            />
+          </Box>
         </Box>
 
-        {/* Contenido principal - Grid con filtros y resultados */}
-        <Grid container spacing={3}>
-          {/* Columna de filtros en desktop / Dialog en móvil */}
-          <Grid
-            item
-            xs={12}
-            md={3}
-            sx={{
-              display: { xs: showFilters ? "block" : "none", md: "block" },
-            }}
-          >
-            <SearchFilters
-              filters={filters}
-              onFilterChange={handleFilterChange}
-              onClearFilters={handleClearFilters}
-            />
-          </Grid>
-
-          {/* Columna de resultados */}
-          <Grid item xs={12} md={9}>
-            {/* Botón para mostrar/ocultar filtros en móvil */}
-            <Box
-              sx={{
-                display: { xs: "flex", md: "none" },
-                justifyContent: "space-between",
-                alignItems: "center",
-                mb: 2,
-              }}
-            >
-              <Button
-                variant={showFilters ? "contained" : "outlined"}
-                color="primary"
-                startIcon={<FilterListIcon />}
-                onClick={() => setShowFilters(!showFilters)}
-                size="small"
-              >
-                {showFilters ? "Ocultar Filtros" : "Mostrar Filtros"}
-              </Button>
-
-              <Typography variant="subtitle2" color="text.secondary">
-                {filteredPrograms.length} resultados
-              </Typography>
-            </Box>
-
-            <Box
-              sx={{
-                bgcolor: isDarkMode
-                  ? "rgba(255,255,255,0.05)"
-                  : "rgba(0,0,0,0.03)",
-                p: 2,
-                borderRadius: 2,
-              }}
-            >
+        {/* Main content area */}
+        <Grid container spacing={3} sx={{ px: 3 }}>
+          {/* Filters column - Desktop */}
+          <Grid item xs={12} md={3} sx={{ display: { xs: "none", md: "block" } }}>
+            <Paper sx={{ p: 2, mb: 2 }}>
               <Box
                 sx={{
-                  display: { xs: "none", md: "flex" },
+                  display: "flex",
                   justifyContent: "space-between",
                   alignItems: "center",
                   mb: 2,
                 }}
               >
-                <Typography variant="h6" component="h2" fontWeight="medium">
-                  Resultados ({filteredPrograms.length})
-                </Typography>
-
-                <Stack direction="row" spacing={2} alignItems="center">
-                  <Button
-                    variant="text"
-                    startIcon={<TuneIcon />}
-                    size="small"
-                    onClick={() => {
-                      /* Implementar ordenamiento */
-                    }}
-                  >
-                    Ordenar
-                  </Button>
-                </Stack>
-              </Box>
-
-              {/* Listado de resultados */}
-              {filteredPrograms.length > 0 ? (
-                <Box sx={{ display: "flex", flexDirection: "column", gap: 3 }}>
-                  {filteredPrograms.map((program) => (
-                    <ProgramCard key={program.id} program={program} />
-                  ))}
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <TuneIcon sx={{ mr: 1 }} />
+                  <Typography variant="h6">Filtros</Typography>
                 </Box>
-              ) : (
-                <Paper
+                {hasActiveFilters && (
+                  <Button size="small" onClick={handleClearFilters}>
+                    Limpiar
+                  </Button>
+                )}
+              </Box>
+              <Divider sx={{ mb: 2 }} />
+              <SearchFilters
+                filters={filters}
+                onFilterChange={handleFilterChange}
+                onClearFilters={handleClearFilters}
+              />
+            </Paper>
+          </Grid>
+
+          {/* Filter button for mobile */}
+          <Box
+            sx={{
+              display: { xs: "flex", md: "none" },
+              position: "fixed",
+              bottom: 80,
+              right: 16,
+              zIndex: 1000,
+            }}
+          >
+            <Button
+              variant="contained"
+              color="primary"
+              startIcon={<FilterListIcon />}
+              onClick={() => setShowFilters(!showFilters)}
+              sx={{
+                borderRadius: 30,
+                px: 3,
+                py: 1.5,
+                boxShadow: muiTheme.shadows[4],
+              }}
+            >
+              Filtros {hasActiveFilters && `(${getSelectedModalities().length + getSelectedLevels().length + getSelectedLocations().length})`}
+            </Button>
+          </Box>
+
+          {/* Filters for mobile */}
+          {showFilters && (
+            <Box
+              sx={{
+                display: { xs: "block", md: "none" },
+                position: "fixed",
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                backgroundColor: "rgba(0,0,0,0.5)",
+                zIndex: 1100,
+                overflow: "auto",
+              }}
+            >
+              <Paper
+                sx={{
+                  position: "absolute",
+                  top: "50%",
+                  left: "50%",
+                  transform: "translate(-50%, -50%)",
+                  width: "90%",
+                  maxWidth: 400,
+                  maxHeight: "80vh",
+                  overflow: "auto",
+                  p: 3,
+                }}
+              >
+                <Box
                   sx={{
-                    p: 4,
-                    textAlign: "center",
-                    bgcolor: isDarkMode ? "rgba(255,255,255,0.05)" : "white",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
+                    mb: 2,
                   }}
                 >
-                  <Typography variant="h6" color="text.secondary">
-                    No se encontraron resultados para los filtros seleccionados
-                  </Typography>
-                  <Typography
-                    variant="body2"
-                    color="text.secondary"
-                    sx={{ mt: 1 }}
-                  >
-                    Intenta con otros criterios de búsqueda
-                  </Typography>
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ mt: 3 }}
-                    onClick={handleClearFilters}
-                  >
-                    Limpiar filtros
-                  </Button>
-                </Paper>
+                  <Typography variant="h6">Filtros</Typography>
+                  <Box>
+                    {hasActiveFilters && (
+                      <Button
+                        size="small"
+                        onClick={handleClearFilters}
+                        sx={{ mr: 1 }}
+                      >
+                        Limpiar
+                      </Button>
+                    )}
+                    <Button
+                      variant="contained"
+                      onClick={() => setShowFilters(false)}
+                    >
+                      Aplicar
+                    </Button>
+                  </Box>
+                </Box>
+                <Divider sx={{ mb: 2 }} />
+                <SearchFilters
+                  filters={filters}
+                  onFilterChange={handleFilterChange}
+                  onClearFilters={handleClearFilters}
+                />
+              </Paper>
+            </Box>
+          )}
+
+          {/* Search results column */}
+          <Grid item xs={12} md={9}>
+            {/* Active filters */}
+            {hasActiveFilters && (
+              <Box sx={{ mb: 3 }}>
+                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                  {getSelectedModalities().map((modality) => (
+                    <Chip
+                      key={`filter-${modality}`}
+                      label={modality}
+                      onDelete={() =>
+                        handleFilterChange(
+                          "modality",
+                          modality.toLowerCase(),
+                          false
+                        )
+                      }
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                  {getSelectedLevels().map((level) => (
+                    <Chip
+                      key={`filter-${level}`}
+                      label={level}
+                      onDelete={() =>
+                        handleFilterChange(
+                          "level",
+                          level.toLowerCase(),
+                          false
+                        )
+                      }
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                  {getSelectedLocations().map((location) => (
+                    <Chip
+                      key={`filter-${location}`}
+                      label={location}
+                      onDelete={() => {
+                        const locationKey = location.toLowerCase();
+                        if (locationKey === "medellín") {
+                          handleFilterChange("location", "medellin", false);
+                        } else if (locationKey === "bogotá") {
+                          handleFilterChange("location", "bogota", false);
+                        } else {
+                          handleFilterChange("location", locationKey, false);
+                        }
+                      }}
+                      sx={{ mb: 1 }}
+                    />
+                  ))}
+                </Stack>
+              </Box>
+            )}
+
+            {/* Results info */}
+            <Box
+              sx={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                mb: 3,
+              }}
+            >
+              {loading ? (
+                <Typography>Cargando resultados...</Typography>
+              ) : (
+                <Typography>
+                  {filteredPrograms.length}{" "}
+                  {filteredPrograms.length === 1
+                    ? "programa encontrado"
+                    : "programas encontrados"}
+                </Typography>
               )}
             </Box>
+
+            {/* Loading state */}
+            {loading && (
+              <Box sx={{ display: "flex", justifyContent: "center", my: 4 }}>
+                <CircularProgress />
+              </Box>
+            )}
+
+            {/* Error state */}
+            {error && (
+              <Alert severity="error" sx={{ mb: 2 }}>
+                {error}
+              </Alert>
+            )}
+
+            {/* Results */}
+            {!loading && !error && filteredPrograms.length === 0 && (
+              <Box sx={{ textAlign: "center", py: 5 }}>
+                <Typography variant="h6" gutterBottom>
+                  No se encontraron programas que coincidan con tu búsqueda
+                </Typography>
+                <Typography color="text.secondary">
+                  Intenta con otros términos o ajusta los filtros
+                </Typography>
+              </Box>
+            )}
+
+            {/* Program cards */}
+            <Grid container spacing={3}>
+              {filteredPrograms.map((program) => (
+                <Grid item xs={12} key={program.id}>
+                  <ProgramCard program={program} />
+                </Grid>
+              ))}
+            </Grid>
           </Grid>
         </Grid>
-        <ChatModal
-          open={isChatOpen}
-          onClose={() => setIsChatOpen(false)}
-          onSearchRequest={handleChatSearchRequest}
-        />
-
       </Box>
+
+      {/* Chat button */}
+      <ChatButton onClick={() => setIsChatOpen(true)} />
+
+      {/* Chat modal */}
+      <ChatModal
+        open={isChatOpen}
+        onClose={() => setIsChatOpen(false)}
+        onSearchRequest={handleChatSearchRequest}
+      />
     </MainLayout>
   );
 };
