@@ -115,7 +115,7 @@ export const Header: React.FC = () => {
 
           <ThemeSwitcher />
 
-          <Button
+          {/* <Button
             variant="contained"
             color="primary"
             component={RouterLink}
@@ -131,7 +131,7 @@ export const Header: React.FC = () => {
             }}
           >
             {isMobile ? "Admin" : "Administrador"}
-          </Button>
+          </Button> */}
         </Box>
       </Toolbar>
     </AppBar>

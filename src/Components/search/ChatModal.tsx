@@ -45,6 +45,7 @@ export const ChatModal: React.FC<ChatModalProps> = ({ open, onClose, onSearchReq
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputValue, setInputValue] = useState('');
     const [isLoading, setIsLoading] = useState(false);
+    const [conversationId, setConversationId] = useState<string | undefined>(undefined);
 
     // Referencia para desplazamiento automático de mensajes
     const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -87,28 +88,31 @@ export const ChatModal: React.FC<ChatModalProps> = ({ open, onClose, onSearchReq
         setIsLoading(true);
 
         try {
-            // Llamada real a la API
+            // Llamada a la API con el conversationId si existe
             const responseData = await chatService.sendMessage(
                 inputValue,
-                SYSTEM_PROMPTS.ACADEMIC_ADVISOR
+                SYSTEM_PROMPTS.ACADEMIC_ADVISOR,
+                { conversation_id: conversationId }
             );
 
-            const response = responseData.response;
+            // Guardar el conversationId para mantener el hilo de conversación
+            if (responseData.conversation_id) {
+                setConversationId(responseData.conversation_id);
+            }
+
+            const botMessage: Message = {
+                id: Date.now().toString(),
+                text: responseData.response,
+                sender: 'bot',
+                timestamp: new Date(),
+            };
+
+            // Actualizar los mensajes con la respuesta del bot
+            setMessages((prevMessages) => [...prevMessages, botMessage]);
 
             // Verificar si la respuesta contiene una recomendación de búsqueda
-            const searchMatch = response.match(/BÚSQUEDA_RECOMENDADA: (.*)/);
-            if (searchMatch && searchMatch[1]) {
-                const searchQuery = searchMatch[1].trim();
-
-                // Agregar la respuesta del bot sin la recomendación de búsqueda
-                const cleanResponse = response.replace(/BÚSQUEDA_RECOMENDADA: .*/, '').trim();
-
-                const botMessage: Message = {
-                    id: Date.now().toString(),
-                    text: cleanResponse,
-                    sender: 'bot',
-                    timestamp: new Date(),
-                };
+            if (responseData.search_recommendation) {
+                const searchQuery = responseData.search_recommendation;
 
                 const recommendationMessage: Message = {
                     id: (Date.now() + 1).toString(),
@@ -117,23 +121,13 @@ export const ChatModal: React.FC<ChatModalProps> = ({ open, onClose, onSearchReq
                     timestamp: new Date(),
                 };
 
-                setMessages((prevMessages) => [...prevMessages, botMessage, recommendationMessage]);
+                setMessages((prevMessages) => [...prevMessages, recommendationMessage]);
 
-                // Notificar que hay una solicitud de búsqueda
+                // Notificar que hay una solicitud de búsqueda después de un breve retraso
                 setTimeout(() => {
                     onSearchRequest(searchQuery);
                     onClose();
                 }, 3000);
-            } else {
-                // Si no hay recomendación, solo agregar la respuesta del bot
-                const botMessage: Message = {
-                    id: Date.now().toString(),
-                    text: response,
-                    sender: 'bot',
-                    timestamp: new Date(),
-                };
-
-                setMessages((prevMessages) => [...prevMessages, botMessage]);
             }
         } catch (error) {
             console.error('Error al obtener respuesta del bot:', error);

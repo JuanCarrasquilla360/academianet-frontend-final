@@ -18,6 +18,10 @@ interface ChatRequest {
     prompt: string;
     system_prompt: string;
     conversation_id?: string;
+    messages?: Array<{
+        role: 'user' | 'system' | 'assistant';
+        content: string;
+    }>;
     model_options?: {
         temperature?: number;
         modelId?: string;
@@ -28,6 +32,8 @@ interface ChatRequest {
 interface ChatResponse {
     response: string;
     conversation_id?: string;
+    message_count?: number;
+    search_recommendation?: string;
     success: boolean;
     error?: string;
     metadata?: {
@@ -40,6 +46,9 @@ interface ChatResponse {
 // Interfaz para la respuesta simplificada del API actual
 interface SimplifiedApiResponse {
     resp: string;
+    conversation_id?: string;
+    message_count?: number;
+    search_recommendation?: string;
 }
 
 // Interfaz para el historial de conversación
@@ -198,6 +207,9 @@ export const chatService = {
             // Transformar la respuesta simplificada al formato esperado por la aplicación
             const transformedResponse: ChatResponse = {
                 response: response.data.resp || '',
+                conversation_id: response.data.conversation_id,
+                message_count: response.data.message_count,
+                search_recommendation: response.data.search_recommendation,
                 success: true,
                 metadata: {
                     processingTime: endTime - startTime
