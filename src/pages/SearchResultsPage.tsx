@@ -38,7 +38,6 @@ export const SearchResultsPage: React.FC = () => {
 
   // Search states
   const [searchTerm, setSearchTerm] = useState("");
-  const [programs, setPrograms] = useState<Program[]>([]);
   const [filteredPrograms, setFilteredPrograms] = useState<Program[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -96,14 +95,13 @@ export const SearchResultsPage: React.FC = () => {
         };
 
         const searchResults = await searchService.search(apiFilters);
-        
+
         // Map programs to the format expected by ProgramCard
         let mappedPrograms = searchService.mapProgramsToSearchModel(searchResults.programs);
-        
+
         // Enrich programs with institution data
         mappedPrograms = await searchService.enrichProgramsWithInstitutions(mappedPrograms);
-        
-        setPrograms(mappedPrograms);
+
         setFilteredPrograms(mappedPrograms);
       } catch (err) {
         console.error("Error fetching programs:", err);
@@ -278,6 +276,10 @@ export const SearchResultsPage: React.FC = () => {
               sx={{ boxShadow: muiTheme.shadows[4] }}
             />
           </Box>
+          <Box sx={{ display: "flex", justifyContent: "center"}}>
+            <ChatButton onClick={() => setIsChatOpen(true)} />
+          </Box>
+          {/* Chat button */}
         </Box>
 
         {/* Main content area */}
@@ -517,8 +519,7 @@ export const SearchResultsPage: React.FC = () => {
         </Grid>
       </Box>
 
-      {/* Chat button */}
-      <ChatButton onClick={() => setIsChatOpen(true)} />
+
 
       {/* Chat modal */}
       <ChatModal

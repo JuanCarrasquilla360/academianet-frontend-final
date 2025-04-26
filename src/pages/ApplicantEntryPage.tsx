@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, ChangeEvent } from "react";
 import {
   Box,
   Typography,
@@ -16,6 +16,7 @@ import {
   DialogContentText,
   DialogTitle,
   IconButton,
+  SelectChangeEvent,
 } from "@mui/material";
 import { useNavigate, useLocation, Link } from "react-router-dom";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
@@ -72,7 +73,7 @@ export const ApplicantEntryPage: React.FC = () => {
 
   // Manejar cambios en los campos del formulario
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | { name?: string; value: unknown }>
+    e: SelectChangeEvent<string> | ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
@@ -124,11 +125,11 @@ export const ApplicantEntryPage: React.FC = () => {
   const handleRedirectToRegistration = () => {
     navigate(
       "/registro-aspirante" +
-        `?institution=${encodeURIComponent(formData.institution)}` +
-        `&program=${encodeURIComponent(formData.program)}` +
-        `&documentType=${encodeURIComponent(formData.documentType)}` +
-        `&documentNumber=${encodeURIComponent(formData.documentNumber)}` +
-        `&enrollmentPeriod=${encodeURIComponent(formData.enrollmentPeriod)}`
+      `?institution=${encodeURIComponent(formData.institution)}` +
+      `&program=${encodeURIComponent(formData.program)}` +
+      `&documentType=${encodeURIComponent(formData.documentType)}` +
+      `&documentNumber=${encodeURIComponent(formData.documentNumber)}` +
+      `&enrollmentPeriod=${encodeURIComponent(formData.enrollmentPeriod)}`
     );
   };
 

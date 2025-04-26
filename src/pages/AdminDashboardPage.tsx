@@ -2,7 +2,6 @@ import React from "react";
 import {
   Box,
   Typography,
-  Paper,
   Grid,
   Card,
   CardContent,
@@ -68,25 +67,25 @@ export const AdminDashboardPage: React.FC = () => {
       </Box>
       <Divider />
       <List>
-        <ListItem button selected>
+        <ListItem>
           <ListItemIcon>
             <DashboardIcon />
           </ListItemIcon>
           <ListItemText primary="Dashboard" />
         </ListItem>
-        <ListItem button>
+        <ListItem >
           <ListItemIcon>
             <PeopleIcon />
           </ListItemIcon>
           <ListItemText primary="Aspirantes" />
         </ListItem>
-        <ListItem button>
+        <ListItem >
           <ListItemIcon>
             <SchoolIcon />
           </ListItemIcon>
           <ListItemText primary="Programas" />
         </ListItem>
-        <ListItem button>
+        <ListItem >
           <ListItemIcon>
             <EventIcon />
           </ListItemIcon>
@@ -95,13 +94,13 @@ export const AdminDashboardPage: React.FC = () => {
       </List>
       <Divider />
       <List>
-        <ListItem button>
+        <ListItem >
           <ListItemIcon>
             <SettingsIcon />
           </ListItemIcon>
           <ListItemText primary="Configuración" />
         </ListItem>
-        <ListItem button onClick={handleLogout}>
+        <ListItem onClick={handleLogout}>
           <ListItemIcon>
             <LogoutIcon />
           </ListItemIcon>

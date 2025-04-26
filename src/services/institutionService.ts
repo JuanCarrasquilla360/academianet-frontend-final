@@ -75,7 +75,7 @@ export const institutionService = {
     transformToUIModel: (institution: InstitutionApiResponse): InstitutionUI => {
         return {
             ...institution,
-            logoUrl: '/src/assets/logos/institution-default.png',  // Default logo until provided by API
+            logoUrl: '../institution-default.png',  // Default logo until provided by API
             website: `https://www.${institution.nombre.toLowerCase().replace(/\s+/g, '')}.edu.co`,  // Temporary website URL
             description: `${institution.nombre} es una institución educativa ubicada en ${institution.ciudad}.`,
             country: 'Colombia',

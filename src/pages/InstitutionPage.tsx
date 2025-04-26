@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import {
   Box,
   Typography,
@@ -29,7 +29,7 @@ import { programService, ProgramUI } from "../services/programService";
 export const InstitutionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const location = useLocation();
+  
   const { theme } = useTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
@@ -37,15 +37,10 @@ export const InstitutionPage: React.FC = () => {
   const [programs, setPrograms] = useState<ProgramUI[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
-  const [selectedProgram, setSelectedProgram] = useState<string | null>(null);
   const [programsLoading, setProgramsLoading] = useState<boolean>(false);
 
   // Get career from query string
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const carrera = params.get("carrera");
-    setSelectedProgram(carrera);
-  }, [location.search]);
+
 
   // Fetch institution data
   useEffect(() => {
@@ -61,6 +56,8 @@ export const InstitutionPage: React.FC = () => {
         if (institutionData) {
           // Transform to UI model
           const institutionUI = institutionService.transformToUIModel(institutionData);
+          console.log(institutionUI);
+          
           setInstitution(institutionUI);
           setError(null);
           

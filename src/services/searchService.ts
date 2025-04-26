@@ -23,14 +23,7 @@ export const searchService = {
   search: async (filters: SearchFilters): Promise<SearchResults> => {
     try {
       // Initialize result object
-      const results: SearchResults = {
-        programs: [],
-        institutions: [],
-        totalPrograms: 0,
-        totalInstitutions: 0,
-        loading: false,
-        error: null
-      };
+   
 
       // Set up the search parameters
       const programFilters: any = {};
@@ -113,7 +106,7 @@ export const searchService = {
       university: program.institucionId, // We'll need to replace this with actual institution name
       location: program.municipio,
       description: `Programa académico de nivel ${program.level} con una duración de ${program.duration} y ${program.credits} créditos.`,
-      logoUrl: '/src/assets/logos/institution-default.png', // Default logo
+      logoUrl: './institution-default.png', // Default logo
       modality: [program.modalidad],
       duration: program.duration,
       level: program.level,
@@ -144,7 +137,7 @@ export const searchService = {
         return {
           ...program,
           university: institution ? institution.name : 'Institución Desconocida',
-          logoUrl: institution ? institution.logoUrl : '/src/assets/logos/institution-default.png'
+          logoUrl: institution ? institution.logoUrl : '../institution-default.png'
         };
       });
     } catch (error) {

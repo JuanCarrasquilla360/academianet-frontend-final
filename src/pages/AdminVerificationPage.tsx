@@ -75,7 +75,7 @@ export const AdminVerificationPage: React.FC = () => {
   // Manejar la tecla de retroceso para ir al input anterior
   const handleKeyDown = (
     index: number,
-    e: React.KeyboardEvent<HTMLInputElement>
+    e: React.KeyboardEvent<HTMLDivElement>
   ) => {
     if (e.key === "Backspace" && !verificationCode[index] && index > 0) {
       inputRefs.current[index - 1]?.focus();

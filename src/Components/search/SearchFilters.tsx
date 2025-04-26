@@ -2,7 +2,6 @@ import React from "react";
 import {
   Box,
   Typography,
-  Paper,
   Checkbox,
   FormControlLabel,
   FormGroup,
@@ -13,7 +12,6 @@ import {
 } from "@mui/material";
 import InfoIcon from "@mui/icons-material/Info";
 import FilterAltOffIcon from "@mui/icons-material/FilterAltOff";
-import { useTheme } from "../../hooks/useTheme";
 
 export interface FilterOptions {
   modality: {
@@ -53,8 +51,6 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
   onFilterChange,
   onClearFilters,
 }) => {
-  const { theme } = useTheme();
-  const isDarkMode = theme.palette.mode === "dark";
 
   // Verificar si hay algún filtro activo
   const hasActiveFilters = Object.entries(filters).some(
@@ -259,69 +255,7 @@ export const SearchFilters: React.FC<SearchFiltersProps> = ({
 
       <Divider sx={{ my: 2 }} />
 
-      {/* Filtro de Ubicación */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle1" fontWeight="medium" gutterBottom>
-          Ubicación
-        </Typography>
-        <FormGroup>
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.location.medellin}
-                onChange={(e) =>
-                  onFilterChange("location", "medellin", e.target.checked)
-                }
-              />
-            }
-            label="Medellín"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.location.bogota}
-                onChange={(e) =>
-                  onFilterChange("location", "bogota", e.target.checked)
-                }
-              />
-            }
-            label="Bogotá"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.location.cali}
-                onChange={(e) =>
-                  onFilterChange("location", "cali", e.target.checked)
-                }
-              />
-            }
-            label="Cali"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.location.barranquilla}
-                onChange={(e) =>
-                  onFilterChange("location", "barranquilla", e.target.checked)
-                }
-              />
-            }
-            label="Barranquilla"
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={filters.location.cartagena}
-                onChange={(e) =>
-                  onFilterChange("location", "cartagena", e.target.checked)
-                }
-              />
-            }
-            label="Cartagena"
-          />
-        </FormGroup>
-      </Box>
+
     </Box>
   );
 };

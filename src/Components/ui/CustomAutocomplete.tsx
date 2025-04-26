@@ -4,7 +4,6 @@ import {
   TextField,
   Box,
   Typography,
-  useTheme,
 } from "@mui/material";
 import { useTheme as useCustomTheme } from "../../hooks/useTheme";
 
@@ -40,7 +39,6 @@ export const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
   fullWidth = true,
   disabled = false,
 }) => {
-  const muiTheme = useTheme();
   const { theme } = useCustomTheme();
   const isDarkMode = theme.palette.mode === "dark";
 
@@ -112,15 +110,6 @@ export const CustomAutocomplete: React.FC<CustomAutocompleteProps> = ({
           <Typography variant="body2">{option.label}</Typography>
         </Box>
       )}
-      PaperProps={{
-        sx: {
-          backgroundColor: isDarkMode ? "#2A2A2A" : undefined,
-          color: isDarkMode ? "#FFFFFF" : undefined,
-          "& .MuiAutocomplete-listbox": {
-            backgroundColor: isDarkMode ? "#2A2A2A" : undefined,
-          },
-        },
-      }}
     />
   );
 };
