@@ -25,6 +25,7 @@ import { MainLayout } from "../layouts/MainLayout";
 import { useTheme } from "../hooks/useTheme";
 import { institutionService, InstitutionUI } from "../services/institutionService";
 import { programService, ProgramUI } from "../services/programService";
+import { ProgramCard, Program } from "../Components/search/ProgramCard";
 
 export const InstitutionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -101,6 +102,21 @@ export const InstitutionPage: React.FC = () => {
 
   const handleBack = () => {
     navigate(-1);
+  };
+
+  // Convert ProgramUI to Program interface required by ProgramCard
+  const convertToCardProgram = (program: ProgramUI, institutionName: string): Program => {
+    return {
+      id: program.id,
+      title: program.name,
+      university: institutionName,
+      location: program.municipio,
+      description: `Programa académico de nivel ${program.level} con ${program.credits} créditos.`,
+      logoUrl: institution?.logoUrl || "",
+      modality: [program.modalidad],
+      duration: program.duration,
+      level: program.level
+    };
   };
 
   if (loading) {
@@ -244,69 +260,18 @@ export const InstitutionPage: React.FC = () => {
           {programsLoading ? (
             <Grid container spacing={3}>
               {Array.from(new Array(6)).map((_, index) => (
-                <Grid item xs={12} sm={6} md={4} key={index}>
-                  <Skeleton variant="rectangular" height={150} />
+                <Grid item xs={12} key={index}>
+                  <Skeleton variant="rectangular" height={200} />
                 </Grid>
               ))}
             </Grid>
           ) : programs.length > 0 ? (
             <Grid container spacing={3}>
               {programs.map((program) => (
-                <Grid item xs={12} sm={6} md={4} key={program.id}>
-                  <Card
-                    elevation={1}
-                    sx={{
-                      height: "100%",
-                      display: "flex",
-                      flexDirection: "column",
-                      transition: "transform 0.2s, box-shadow 0.2s",
-                      "&:hover": {
-                        transform: "translateY(-4px)",
-                        boxShadow: 4,
-                      },
-                    }}
-                  >
-                    <CardContent sx={{ flexGrow: 1 }}>
-                      <Typography variant="h6" component="h3" gutterBottom>
-                        {program.name}
-                      </Typography>
-                      <Divider sx={{ my: 1.5 }} />
-                      <List dense disablePadding>
-                        <ListItem disableGutters>
-                          <ListItemText
-                            primary="Nivel"
-                            secondary={program.level}
-                          />
-                        </ListItem>
-                        <ListItem disableGutters>
-                          <ListItemText
-                            primary="Duración"
-                            secondary={program.duration}
-                          />
-                        </ListItem>
-                        <ListItem disableGutters>
-                          <ListItemText
-                            primary="Modalidad"
-                            secondary={program.modalidad}
-                          />
-                        </ListItem>
-                        <ListItem disableGutters>
-                          <ListItemText
-                            primary="Créditos"
-                            secondary={program.credits}
-                          />
-                        </ListItem>
-                      </List>
-
-                      <Box sx={{ mt: 2, display: "flex", justifyContent: "flex-end" }}>
-                        <Chip
-                          label={program.estado}
-                          color={program.estado === "Activo" ? "success" : "default"}
-                          size="small"
-                        />
-                      </Box>
-                    </CardContent>
-                  </Card>
+                <Grid item xs={12} key={program.id}>
+                  <ProgramCard 
+                    program={convertToCardProgram(program, institution.nombre)} 
+                  />
                 </Grid>
               ))}
             </Grid>
