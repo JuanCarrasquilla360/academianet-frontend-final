@@ -36,6 +36,9 @@ const initialFormData: FormData = {
   phoneNumber: "",
 };
 
+// API endpoint for program enrollment
+const ENROLLMENT_API_ENDPOINT = "https://hdvcvqqro4.execute-api.us-east-1.amazonaws.com/dev/submit-application";
+
 export const ApplicationModal: React.FC<ApplicationModalProps> = ({
   open,
   program,
@@ -97,29 +100,41 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
     setLoading(true);
     
     try {
-      // Replace with actual API endpoint when available
-      // const response = await fetch("https://your-backend-url/applications", {
-      //   method: "POST",
-      //   headers: {
-      //     "Content-Type": "application/json",
-      //   },
-      //   body: JSON.stringify({
-      //     programId: program.id,
-      //     programName: program.title,
-      //     university: program.university,
-      //     ...formData,
-      //   }),
-      // });
+      // Prepare data according to API specification
+      const enrollmentData = {
+        nombre: formData.firstName,
+        apellido: formData.lastName,
+        email: formData.email,
+        telefono: formData.phoneNumber, // API expects 'phone' not 'phoneNumber'
+        programName: `${program.title} - ${program.university}`,
+        programId: program.id
+      };
+    //   const enrollmentData = {
+    //     firstName: formData.firstName,
+    //     lastName: formData.lastName,
+    //     email: formData.email,
+    //     phone: formData.phoneNumber, // API expects 'phone' not 'phoneNumber'
+    //     programName: `${program.title} - ${program.university}`,
+    //     programId: program.id
+    //   };
       
-      // Simulate API call delay
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      // Send request to enrollment API
+      const response = await fetch(ENROLLMENT_API_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(enrollmentData),
+      });
       
-      // if (!response.ok) {
-      //   throw new Error("La solicitud no pudo ser procesada");
-      // }
+      const responseData = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(responseData.message || "Error en el envío de la solicitud");
+      }
       
       // Success
-      toast.success("¡Tu solicitud ha sido enviada! Pronto recibirás un correo con más información.", {
+      toast.success("¡Tu solicitud de afiliación ha sido recibida! Pronto recibirás un correo con más información.", {
         position: "top-right",
         autoClose: 5000,
       });
@@ -129,7 +144,7 @@ export const ApplicationModal: React.FC<ApplicationModalProps> = ({
       onClose();
       
     } catch (error) {
-      console.error("Error submitting application:", error);
+      console.error("Error submitting enrollment:", error);
       toast.error("Hubo un problema al enviar tu solicitud. Por favor intenta de nuevo más tarde.", {
         position: "top-right",
         autoClose: 5000,
