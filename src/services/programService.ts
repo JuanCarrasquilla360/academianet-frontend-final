@@ -47,6 +47,7 @@ export interface ProgramFilters {
     modalidad?: string;
     institucionId?: string;
     municipio?: string;
+    duracionPrograma?: string;
     limit?: number;
     nextToken?: string;
 }
@@ -75,6 +76,7 @@ export const programService = {
             if (filters?.modalidad) params.append('modalidad', filters.modalidad);
             if (filters?.institucionId) params.append('institucionId', filters.institucionId);
             if (filters?.municipio) params.append('municipio', filters.municipio);
+            if (filters?.duracionPrograma) params.append('duracionPrograma', filters.duracionPrograma);
             if (filters?.limit) params.append('limit', filters.limit.toString());
             if (filters?.nextToken) params.append('nextToken', filters.nextToken);
 

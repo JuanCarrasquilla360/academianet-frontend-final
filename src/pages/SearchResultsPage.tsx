@@ -92,6 +92,7 @@ export const SearchResultsPage: React.FC = () => {
           modalidad: getSelectedModalities(),
           nivel: getSelectedLevels(),
           municipio: getSelectedLocations(),
+          duracionPrograma: getSelectedDurationValue(),
         };
 
         const searchResults = await searchService.search(apiFilters);
@@ -124,12 +125,12 @@ export const SearchResultsPage: React.FC = () => {
 
   const getSelectedLevels = (): string[] => {
     const result: string[] = [];
-    if (filters.level.pregrado) result.push("pregrado");
-    if (filters.level.especializacion) result.push("especialización");
-    if (filters.level.maestria) result.push("maestría");
-    if (filters.level.doctorado) result.push("doctorado");
-    if (filters.level.tecnico) result.push("técnico");
-    if (filters.level.tecnologico) result.push("tecnológico");
+    if (filters.level.pregrado) result.push("Pregrado");
+    if (filters.level.especializacion) result.push("Especialización");
+    if (filters.level.maestria) result.push("Maestría");
+    if (filters.level.doctorado) result.push("Doctorado");
+    if (filters.level.tecnico) result.push("Técnico");
+    if (filters.level.tecnologico) result.push("Tecnológico");
     return result;
   };
 
@@ -141,6 +142,14 @@ export const SearchResultsPage: React.FC = () => {
     if (filters.location.barranquilla) result.push("Barranquilla");
     if (filters.location.cartagena) result.push("Cartagena");
     return result;
+  };
+
+  // Helper function to extract the first selected duration value
+  const getSelectedDurationValue = (): string | undefined => {
+    if (filters.duration.corto) return "corto";
+    if (filters.duration.medio) return "medio";
+    if (filters.duration.largo) return "largo";
+    return undefined;
   };
 
   // Chat search handler

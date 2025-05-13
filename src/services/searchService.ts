@@ -1,5 +1,5 @@
 import { institutionService, InstitutionUI } from './institutionService';
-import { programService, ProgramUI } from './programService';
+import { programService, ProgramUI, ProgramFilters as ProgramServiceFilters } from './programService';
 
 export interface SearchFilters {
   searchTerm?: string;
@@ -7,6 +7,7 @@ export interface SearchFilters {
   nivel?: string[];
   municipio?: string[];
   institucionId?: string;
+  duracionPrograma?: string;
 }
 
 export interface SearchResults {
@@ -23,21 +24,21 @@ export const searchService = {
   search: async (filters: SearchFilters): Promise<SearchResults> => {
     try {
       // Initialize result object
-   
+
 
       // Set up the search parameters
-      const programFilters: any = {};
+      const programFilters: ProgramServiceFilters = {};
       const institutionFilters: any = {};
 
       // Add search term to filters if provided
       // For now, we need to get all data and filter client-side
       // since the API doesn't support text search yet
-      
+
       // Apply specific filters
       if (filters.nivel && filters.nivel.length > 0) {
         programFilters.nivel = filters.nivel[0]; // API only supports single value
       }
-      
+
       if (filters.modalidad && filters.modalidad.length > 0) {
         programFilters.modalidad = filters.modalidad[0]; // API only supports single value
       }
@@ -51,6 +52,11 @@ export const searchService = {
         programFilters.institucionId = filters.institucionId;
       }
 
+      // Add duration filter if provided (now supported by API)
+      if (filters.duracionPrograma) {
+        programFilters.duracionPrograma = filters.duracionPrograma;
+      }
+
       // Fetch programs and institutions in parallel
       const [programsResponse, institutionsResponse] = await Promise.all([
         programService.getPrograms(programFilters),
@@ -58,20 +64,20 @@ export const searchService = {
       ]);
 
       // Transform API responses to UI models
-      let programs = programsResponse.programs.map(prog => 
+      let programs: ProgramUI[] = programsResponse.programs.map(prog =>
         programService.transformToUIModel(prog)
       );
-      
-      let institutions = institutionsResponse.institutions.map(inst => 
+
+      let institutions = institutionsResponse.institutions.map(inst =>
         institutionService.transformToUIModel(inst)
       );
 
       // Apply text search filter client-side if searchTerm provided
       if (filters.searchTerm) {
         const searchTermLower = filters.searchTerm.toLowerCase();
-        
-        programs = programs.filter(program => 
-          program.name.toLowerCase().includes(searchTermLower) || 
+
+        programs = programs.filter(program =>
+          program.name.toLowerCase().includes(searchTermLower) ||
           program.level.toLowerCase().includes(searchTermLower) ||
           program.modalidad.toLowerCase().includes(searchTermLower) ||
           program.municipio.toLowerCase().includes(searchTermLower)
@@ -122,7 +128,7 @@ export const searchService = {
       // Get all institutions to map IDs to names
       const institutionsResponse = await institutionService.getInstitutions();
       const institutionsMap = new Map();
-      
+
       institutionsResponse.institutions.forEach(inst => {
         const uiModel = institutionService.transformToUIModel(inst);
         institutionsMap.set(inst.id, {

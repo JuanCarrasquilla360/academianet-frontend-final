@@ -5,19 +5,12 @@ import {
   Typography,
   Button,
   Grid,
-  Card,
-  CardContent,
   CardMedia,
-  Divider,
   Skeleton,
   Alert,
   Breadcrumbs,
   Link as MuiLink,
   Paper,
-  List,
-  ListItem,
-  ListItemText,
-  Chip,
 } from "@mui/material";
 import ArrowBackIcon from "@mui/icons-material/ArrowBack";
 import SchoolIcon from "@mui/icons-material/School";
