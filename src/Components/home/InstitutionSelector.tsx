@@ -2,62 +2,62 @@ import React from "react";
 import {
   Typography,
   Grid,
-  Select,
-  MenuItem,
-  FormControl,
-  InputLabel,
-  Button,
+  // Select,
+  // MenuItem,
+  // FormControl,
+  // InputLabel,
+  // Button,
   Box,
 } from "@mui/material";
-import { useNavigate } from "react-router-dom";
-import { Formik, Form } from "formik";
-import * as Yup from "yup";
+// import { useNavigate } from "react-router-dom";
+// import { Formik, Form } from "formik";
+// import * as Yup from "yup";
 
 // Esquema de validación
-const validationSchema = Yup.object().shape({
-  carrera: Yup.string().required("Debes seleccionar una carrera"),
-  institucion: Yup.string().required("Debes seleccionar una institución"),
-});
+// const validationSchema = Yup.object().shape({
+//   carrera: Yup.string().required("Debes seleccionar una carrera"),
+//   institucion: Yup.string().required("Debes seleccionar una institución"),
+// });
 
 // Lista de opciones para los selects (mock)
-const carreras = [
-  "Administración de Empresas",
-  "Ingeniería de Sistemas",
-  "Medicina",
-  "Derecho",
-  "Psicología",
-  "Arquitectura",
-];
+// const carreras = [
+//   "Administración de Empresas",
+//   "Ingeniería de Sistemas",
+//   "Medicina",
+//   "Derecho",
+//   "Psicología",
+//   "Arquitectura",
+// ];
 
-const instituciones = [
-  "Universidad de los Andes",
-  "Universidad Nacional de Colombia",
-  "Universidad del Rosario",
-  "Universidad EAFIT",
-  "Universidad del Valle",
-  "Universidad de Antioquia",
-];
+// const instituciones = [
+//   "Universidad de los Andes",
+//   "Universidad Nacional de Colombia",
+//   "Universidad del Rosario",
+//   "Universidad EAFIT",
+//   "Universidad del Valle",
+//   "Universidad de Antioquia",
+// ];
 
 export const InstitutionSelector: React.FC = () => {
-  const navigate = useNavigate();
+  // const navigate = useNavigate();
 
-  const handleSubmit = (values: { carrera: string; institucion: string }) => {
-    // Crear IDs simplificados basados en los nombres
-    const institucionId = values.institucion
-      .toLowerCase()
-      .replace(
-        /universidad\s+de\s+|universidad\s+|pontificia\s+universidad\s+/g,
-        ""
-      )
-      .replace(/\s+/g, "-");
+  // const handleSubmit = (values: { carrera: string; institucion: string }) => {
+  //   // Crear IDs simplificados basados en los nombres
+  //   const institucionId = values.institucion
+  //     .toLowerCase()
+  //     .replace(
+  //       /universidad\s+de\s+|universidad\s+|pontificia\s+universidad\s+/g,
+  //       ""
+  //     )
+  //     .replace(/\s+/g, "-");
 
-    // Redirigir a la página de la institución con la carrera como parámetro de consulta
-    navigate(
-      `/institucion/${institucionId}?carrera=${encodeURIComponent(
-        values.carrera
-      )}`
-    );
-  };
+  //   // Redirigir a la página de la institución con la carrera como parámetro de consulta
+  //   navigate(
+  //     `/institucion/${institucionId}?carrera=${encodeURIComponent(
+  //       values.carrera
+  //     )}`
+  //   );
+  // };
 
   return (
     <Box
@@ -84,8 +84,8 @@ export const InstitutionSelector: React.FC = () => {
         },
       }}
     >
-      <Grid container spacing={3} sx={{ position: "relative", zIndex: 1 }}>
-        <Grid item xs={12} md={5} sx={{ pl: { md: 4 } }}>
+      <Grid container spacing={3} sx={{ position: "relative", zIndex: 1 }} p={2}>
+        <Grid item xs={12} md={12} sx={{ pl: { md: 4 } }}>
           <Typography
             variant="h3"
             component="h1"
@@ -102,7 +102,7 @@ export const InstitutionSelector: React.FC = () => {
             plataforma para iniciar tu solicitud.
           </Typography>
         </Grid>
-
+{/* 
         <Grid item xs={12} md={7}>
           <Formik
             initialValues={{ carrera: "", institucion: "" }}
@@ -254,7 +254,7 @@ export const InstitutionSelector: React.FC = () => {
               </Form>
             )}
           </Formik>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Box>
   );
